@@ -27,7 +27,7 @@ com atualização periódica para manter os dados sempre frescos.
 1.  **Clone o repositório** ou baixe os arquivos:
 
     ``` bash
-    git clone https://github.com/seu-usuario/powerbi-kiosk-viewer.git
+    git clone https://github.com/pedrosenna1/Kiosk_PBI.git
     ```
 
 2.  **Edite o arquivo `index.html`**:
@@ -72,17 +72,11 @@ com atualização periódica para manter os dados sempre frescos.
 
 ------------------------------------------------------------------------
 
-## 📷 Preview
 
-*(adicione aqui um GIF ou screenshot mostrando os dashboards rodando em
-loop)*
 
-------------------------------------------------------------------------
 
-## 📜 Licença
 
-Este projeto é de uso livre. Sinta-se à vontade para adaptar e melhorar
-conforme sua necessidade.
+
 
 ------------------------------------------------------------------------
 
