@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Audience TV - Power Portal</title>
+  <link rel="shortcut icon" href="https://www.powerportal.com.br/img/favicon.png">
+  <style>
+    html,body{height:100%;margin:0;background:#fff}
+    .iframe-wrap{position:relative;width:100vw;height:100vh;overflow:hidden}
+    .panel{position:absolute;inset:0;border:0;width:100%;height:100%;opacity:0;transition:opacity .45s ease;z-index:1}
+    .panel.active{opacity:1;z-index:2}
+    .ajuste{margin-top:-5px;margin-left:-8px;width:101% !important;height:109vh !important;border:none}
+    #controls{position:fixed;left:10px;bottom:10px;z-index:9;display:flex;flex-direction:column;gap:6px;opacity:.6;transition:opacity .2s}
+    #controls.hidden{opacity:0;pointer-events:none}
+    .row{display:flex;gap:6px;align-items:center}
+    button,select{height:40px;min-width:40px;border:0;border-radius:999px;background:rgba(0,0,0,.3);color:#fff;cursor:pointer;padding:0 10px}
+    #progress{height:8px;width:190px;background:rgba(255,255,255,.3);border-radius:4px;overflow:hidden}
+    #fill{height:100%;width:0;background:rgba(0,255,0,.5);transition:width .1s linear}
+  </style>
+</head>
+<body>
+  <div class="iframe-wrap" id="wrap"></div>
+
+  <div id="controls">
+    <div class="row">
+      <button id="prev" title="Anterior">⏮️</button>
+      <button id="pp"   title="Parar/Retomar">⏸️</button>
+      <button id="next" title="Próximo">⏭️</button>
+      <select id="secs" title="Tempo (segundos)">
+        <option value="5">5s</option><option value="10">10s</option>
+        <option value="15">15s</option><option value="20">20s</option>
+        <option value="30">30s</option><option value="45">45s</option>
+        <option value="60" selected>1min</option><option value="120">2min</option>
+      </select>
+    </div>
+    <div id="progress"><div id="fill"></div></div>
+  </div>
+
+  <script>
+    // --- URLs (cada uma vira um iframe pré-carregado)
+    const urls = [
+      "https://app.powerbi.com/view?r=eyJrIjoiYzYyNmY3MjYtMDFjNi00YWM1LTliZGYtYzNjMzUwMjEzMzBkIiwidCI6ImE4OGMyNmRlLTcwMWMtNDZiYy04YmFkLWFlZDBiNzFkNzNlZiJ9",
+      "https://app.powerbi.com/view?r=eyJrIjoiZjExZjNhMjUtODU5ZC00Zjc0LTk2NDUtYzhiZmJhOGI3MjNjIiwidCI6ImE4OGMyNmRlLTcwMWMtNDZiYy04YmFkLWFlZDBiNzFkNzNlZiJ9",
+    ];
+
+    // --- Configuração
+    const refreshEachMs = 30 * 60 * 1000; // 30 minutos
+    let panelDuration = 60 * 1000;        // controlado pelo select
+    let isPaused = false;
+    let timer, bar;
+
+    // --- Estado
+    const wrap = document.getElementById('wrap');
+    const iframes = [];            // lista de iframes pré-carregados
+    const lastLoad = [];           // timestamps por índice
+    let curr = 0;                  // índice atualmente visível
+
+    // --- cria todos os iframes, um por URL (pré-carrega)
+    urls.forEach((u, i) => {
+      const f = document.createElement('iframe');
+      f.className = 'panel ajuste' + (i === 0 ? ' active' : '');
+      f.allowFullscreen = true;
+      f.src = u;
+      f.dataset.index = i;
+      wrap.appendChild(f);
+      iframes.push(f);
+      lastLoad[i] = Date.now();   // marcou como carregado agora
+    });
+
+    // --- funções utilitárias
+    function setActive(idx) {
+      // antes de mostrar, se passou 30 min desde o último load desse painel, recarrega-o OFFSCREEN
+      if (Date.now() - lastLoad[idx] >= refreshEachMs) {
+        // força reload mantendo a URL e evitando cache
+        const base = urls[idx].split('#')[0];
+        iframes[idx].src = base + (base.includes('?') ? '&' : '?') + '_ts=' + Date.now();
+        lastLoad[idx] = Date.now();
+      }
+
+      // alterna visibilidade sem trocar src (sem reload)
+      iframes[curr].classList.remove('active');
+      iframes[idx].classList.add('active');
+      curr = idx;
+    }
+
+    function next()  { setActive((curr + 1) % iframes.length); restartCycle(); }
+    function prev()  { setActive((curr - 1 + iframes.length) % iframes.length); restartCycle(); }
+
+    function restartCycle() {
+      clearTimeout(timer); clearInterval(bar);
+      if (isPaused) return;
+      const fill = document.getElementById('fill');
+      fill.style.width = '0%';
+      const t0 = Date.now();
+      bar = setInterval(() => {
+        const p = Math.min((Date.now() - t0) / panelDuration * 100, 100);
+        fill.style.width = p + '%';
+      }, 100);
+      timer = setTimeout(next, panelDuration);
+    }
+
+    // --- Controles
+    document.getElementById('next').onclick = next;
+    document.getElementById('prev').onclick = prev;
+    document.getElementById('pp').onclick = () => {
+      isPaused = !isPaused;
+      document.getElementById('pp').textContent = isPaused ? '▶️' : '⏸️';
+      if (!isPaused) restartCycle(); else { clearTimeout(timer); clearInterval(bar); }
+    };
+    document.getElementById('secs').onchange = (e) => {
+      panelDuration = parseInt(e.target.value, 10) * 1000;
+      restartCycle();
+    };
+
+    // --- Esconde controles após inatividade
+    const controls = document.getElementById('controls');
+    let idle;
+    function poke() {
+      controls.classList.remove('hidden');
+      clearTimeout(idle);
+      idle = setTimeout(() => controls.classList.add('hidden'), 5000);
+    }
+    document.addEventListener('mousemove', poke);
+    document.addEventListener('keydown',   poke);
+    poke();
+
+    // --- ciclo inicial
+    restartCycle();
+
+    // --- “garantia” de refresh: checa periodicamente se algum painel está vencendo 30 min
+    //     quando ele for o PRÓXIMO a aparecer, já virá atualizado (reload offscreen).
+    setInterval(() => {
+      const nextIdx = (curr + 1) % iframes.length;
+      if (Date.now() - lastLoad[nextIdx] >= refreshEachMs) {
+        const base = urls[nextIdx].split('#')[0];
+        iframes[nextIdx].src = base + (base.includes('?') ? '&' : '?') + '_ts=' + Date.now();
+        lastLoad[nextIdx] = Date.now();
+      }
+    }, 10_000); // checa a cada 10s, leve
+  </script>
+</body>
+</html>
