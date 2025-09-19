@@ -44,7 +44,7 @@ com atualização periódica para manter os dados sempre frescos.
         ];
         ```
 
-3.  **Abra o arquivo `index.html`** no navegador ou hospede em um
+3.  **Abra o arquivo `PowerBiTvTool.html`** no navegador ou hospede em um
     servidor web.
 
     -   Pode ser hospedado em qualquer ambiente simples (ex.: Apache,
