@@ -11,12 +11,12 @@ com atualização periódica para manter os dados sempre frescos.
 
 ## ✨ Funcionalidades
 
--   ✅ **Pré-carregamento dos dashboards** em iframes\
+-   ✅ **Pré-carregamento dos dashboards** em iframes
 -   ✅ **Alternância suave** entre os relatórios, sem reload a cada
-    troca\
+    troca
 -   ✅ **Atualização automática a cada 30 minutos** (sem afetar a
-    experiência de visualização)\
--   ✅ **Loop contínuo** entre várias páginas do Power BI\
+    experiência de visualização)
+-   ✅ **Loop contínuo** entre várias páginas do Power BI
 -   ✅ **Remoção da barra inferior padrão do Microsoft**, deixando o
     painel limpo e profissional
 
@@ -32,7 +32,7 @@ com atualização periódica para manter os dados sempre frescos.
 
 2.  **Edite o arquivo `index.html`**:
 
-    -   Localize a variável `urls` no início do `<script>`.
+    -   Localize a variável "urls" no início do "<script>".
 
     -   Substitua pelos links de visualização do Power BI que você
         deseja exibir:
@@ -55,10 +55,10 @@ com atualização periódica para manter os dados sempre frescos.
 ## ⚙️ Configurações
 
 -   ⏱️ O tempo entre trocas é configurado pelo seletor na própria tela
-    (5s, 10s, 1min, etc).\
+    (5s, 10s, 1min, etc).
 -   🔄 O refresh automático de cada relatório acontece a cada **30
     minutos** (pode ser alterado na constante `refreshEachMs` no
-    JavaScript).\
+    JavaScript).
 -   🎨 Os efeitos de transição podem ser trocados via seletor de efeitos
     na tela.
 
@@ -66,8 +66,8 @@ com atualização periódica para manter os dados sempre frescos.
 
 ## 🖥️ Exemplos de uso
 
--   TVs em áreas comuns mostrando KPIs da empresa\
--   Salas de operação exibindo indicadores em tempo real\
+-   TVs em áreas comuns mostrando KPIs da empresa
+-   Salas de operação exibindo indicadores em tempo real
 -   Eventos e apresentações com dashboards dinâmicos
 
 ------------------------------------------------------------------------
